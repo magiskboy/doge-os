@@ -1,0 +1,15 @@
+#!/bin/sh
+# Install git-delta from GitHub release (.deb not in Debian apt).
+set -e
+
+DELTA_VER=0.19.2
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+curl -fsSL -o git-delta.deb \
+	"https://github.com/dandavison/delta/releases/download/${DELTA_VER}/git-delta_${DELTA_VER}_amd64.deb"
+
+apt-get install -y ./git-delta.deb

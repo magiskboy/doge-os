@@ -6,9 +6,6 @@ ENV LC_ALL=C.UTF-8
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	ca-certificates \
-	git \
-	make \
-	sudo \
 	live-build \
 	live-boot \
 	live-config \
@@ -19,9 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	syslinux-utils \
 	grub-pc-bin \
 	grub-efi-amd64-bin \
-	mtools \
-	dosfstools \
-	fakeroot \
 	mtools \
 	dosfstools \
 	fakeroot \

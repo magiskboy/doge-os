@@ -1,0 +1,16 @@
+#!/bin/sh
+# Install fnm (Fast Node Manager) from GitHub release (not in Debian apt).
+set -e
+
+FNM_VER=1.39.0
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+curl -fsSL -o fnm.zip \
+	"https://github.com/Schniz/fnm/releases/download/v${FNM_VER}/fnm-linux.zip"
+
+unzip -q fnm.zip
+install -m 755 fnm /usr/local/bin/fnm

@@ -1,14 +1,15 @@
 #!/bin/sh
-# Boot Lotus OS ISO in QEMU with a full PC profile (UEFI, disk, network, input).
+# Boot Lotus OS ISO in QEMU (UEFI when OVMF is available).
 set -e
 
-ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
-ISO="$ROOT/output/lotus-os-trixie-amd64.hybrid.iso"
-VM_DIR="$ROOT/output/test-vm"
+. "$(CDPATH= cd -- "$(dirname "$0")" && pwd)/lib.sh"
+
+ISO="$ISO_PATH"
+VM_DIR="$ROOT/output/vm"
 DISK="$VM_DIR/disk.qcow2"
-DISK_SIZE="${LOTUS_TEST_DISK_SIZE:-32G}"
-MEMORY="${LOTUS_TEST_MEMORY:-4096}"
-SMP="${LOTUS_TEST_SMP:-4}"
+DISK_SIZE="${LOTUS_DISK_SIZE:-32G}"
+MEMORY="${LOTUS_MEMORY:-4096}"
+SMP="${LOTUS_SMP:-4}"
 
 if [ ! -f "$ISO" ]; then
 	echo "error: ISO not found at $ISO" >&2
@@ -24,11 +25,7 @@ if [ ! -f "$DISK" ]; then
 fi
 
 find_ovmf_dir() {
-	for dir in \
-		/usr/share/edk2/ovmf \
-		/usr/share/OVMF \
-		/usr/share/qemu
-	do
+	for dir in /usr/share/edk2/ovmf /usr/share/OVMF /usr/share/qemu; do
 		if [ -f "$dir/OVMF_CODE.fd" ] && [ -f "$dir/OVMF_VARS.fd" ]; then
 			echo "$dir"
 			return 0
@@ -74,18 +71,13 @@ else
 	fi
 fi
 
-echo "Lotus OS QEMU test VM"
+echo "Lotus OS"
 echo "  ISO:  $ISO"
 echo "  Disk: $DISK ($DISK_SIZE)"
 echo "  RAM:  ${MEMORY} MiB, CPUs: $SMP"
 echo "  UEFI: $([ "$USE_UEFI" -eq 1 ] && echo yes || echo no)"
 echo ""
-echo "Debian Installer should detect the virtual SATA disk automatically."
-echo "To reset the VM disk: rm -rf $VM_DIR"
-echo ""
 
-# q35 + ich9-ahci: Debian Installer detects SATA/AHCI without extra drivers.
-# USB tablet + virtio-net/rng: typical desktop-like peripherals.
 launch_qemu() {
 	vga_device="$1"
 
@@ -98,7 +90,7 @@ launch_qemu() {
 	# shellcheck disable=SC2086
 	if [ "$USE_UEFI" -eq 1 ]; then
 		exec qemu-system-x86_64 \
-			-name lotus-os-test \
+			-name lotus-os \
 			-machine "$MACHINE" \
 			-cpu "$CPU" \
 			-m "$MEMORY" \
@@ -121,7 +113,7 @@ launch_qemu() {
 	fi
 
 	exec qemu-system-x86_64 \
-		-name lotus-os-test \
+		-name lotus-os \
 		-machine "$MACHINE" \
 		-cpu "$CPU" \
 		-m "$MEMORY" \

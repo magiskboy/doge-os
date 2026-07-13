@@ -1,0 +1,24 @@
+#!/bin/sh
+# Install Oh My Zsh into /etc/skel for new users (not in Debian apt).
+# Use GitHub archive (not git clone --filter): partial clones hang under fakeroot.
+set -e
+
+OMZ_COMMIT=677a4592b18c08ddea737f8aca70bac0e9fc9313
+ZSH=/etc/skel/.oh-my-zsh
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+
+curl -fsSL -o "$TMP/omz.tar.gz" \
+	"https://github.com/ohmyzsh/ohmyzsh/archive/${OMZ_COMMIT}.tar.gz"
+tar -xzf "$TMP/omz.tar.gz" -C "$TMP"
+rm -rf "$ZSH"
+mv "$TMP/ohmyzsh-${OMZ_COMMIT}" "$ZSH"
+
+# user-setup creates the first user via adduser, which reads DSHELL.
+# There is no d-i passwd/* preseed key for login shell.
+sed -i 's|^DSHELL=.*|DSHELL=/bin/zsh|' /etc/adduser.conf
+if [ -f /etc/default/useradd ]; then
+	sed -i 's|^#\{0,1\}SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd
+fi

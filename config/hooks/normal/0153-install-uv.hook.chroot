@@ -1,0 +1,17 @@
+#!/bin/sh
+# Install uv from GitHub release (not in Debian apt).
+set -e
+
+UV_VER=0.11.28
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+curl -fsSL -o uv.tar.gz \
+	"https://github.com/astral-sh/uv/releases/download/${UV_VER}/uv-x86_64-unknown-linux-gnu.tar.gz"
+
+tar -xzf uv.tar.gz
+install -m 755 uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv
+install -m 755 uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx

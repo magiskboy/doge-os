@@ -1,0 +1,15 @@
+#!/bin/sh
+# Install k9s from GitHub release (.deb not in Debian apt).
+set -e
+
+K9S_VER=0.51.0
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+curl -fsSL -o k9s.deb \
+	"https://github.com/derailed/k9s/releases/download/v${K9S_VER}/k9s_linux_amd64.deb"
+
+apt-get install -y ./k9s.deb
