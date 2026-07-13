@@ -1,0 +1,23 @@
+#!/bin/sh
+# Ensure GNOME starts on boot via GDM (graphical.target + display-manager).
+# Safe in live-build chroot where systemd is not running as PID 1.
+set -e
+
+if [ ! -f /lib/systemd/system/gdm3.service ]; then
+	echo "gdm3.service missing — is gdm3 in package-lists?" >&2
+	exit 1
+fi
+
+# Boot to graphical login (Debian Wiki / GDM).
+if command -v systemctl >/dev/null 2>&1; then
+	systemctl set-default graphical.target >/dev/null 2>&1 || true
+fi
+ln -sfn /lib/systemd/system/graphical.target /etc/systemd/system/default.target
+
+# Only DM in this image: point display-manager.service at gdm3.
+# graphical.target Wants=display-manager.service
+ln -sfn /lib/systemd/system/gdm3.service /etc/systemd/system/display-manager.service
+
+# Keep debconf in sync if another DM is ever added later.
+echo 'gdm3 shared/default-x-display-manager select gdm3' | debconf-set-selections
+echo 'gdm3 shared/default-x-display-manager seen true' | debconf-set-selections

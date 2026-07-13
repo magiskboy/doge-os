@@ -1,0 +1,68 @@
+# GNOME cherry-pick — dùng với --apt-recommends false + base.list.chroot
+# (base khôi phục recommends live/NM/session/podman để tránh break).
+
+# --- Shell / session / login (bắt buộc để có desktop) ---
+gdm3
+gnome-shell
+mutter
+gnome-session
+gnome-settings-daemon
+gnome-control-center
+gnome-keyring
+libpam-gnome-keyring
+adwaita-icon-theme
+fonts-cantarell
+gsettings-desktop-schemas
+gnome-backgrounds
+gnome-menus
+
+# --- Portals / audio / mạng / VFS ---
+# portals: Flatpak & app sandbox; pipewire: audio stack hiện đại của GNOME
+# network-manager: GNOME Settings Wi-Fi; tránh xung đột ifupdown nếu còn
+xdg-desktop-portal
+xdg-desktop-portal-gnome
+pipewire-audio
+wireplumber
+network-manager
+gvfs-backends
+gvfs-fuse
+at-spi2-core
+glib-networking
+libcanberra-pulse
+libglib2.0-bin
+zenity
+
+# --- App giữ: đủ dùng cho workstation / dev ---
+nautilus
+ptyxis
+gnome-text-editor
+loupe
+evince
+# papers là viewer mới hơn (GNOME 48+); evince ổn định, phổ biến trên Trixie
+gnome-disk-utility
+gnome-system-monitor
+baobab
+file-roller
+firefox-esr
+gnome-tweaks
+gnome-calculator
+vlc
+
+# --- Media codecs (preview / web / Nautilus; VLC tự mang stack riêng) ---
+gstreamer1.0-plugins-base
+gstreamer1.0-plugins-good
+gstreamer1.0-libav
+
+# --- Cố ý không cài (giữ ở đây để nhớ khi chỉnh list) ---
+# gnome-maps gnome-weather gnome-calendar gnome-clocks gnome-contacts
+# gnome-connections gnome-snapshot orca yelp gnome-user-docs gnome-tour
+# gnome-software simple-scan totem showtime cups system-config-printer-common
+# gnome-remote-desktop rygel-playbin seahorse evolution libreoffice-*
+# gnome-terminal
+#
+# Cân nhắc thêm sau nếu cần:
+# - ibus-unikey: IME tiếng Việt (ibus đã có trong base.list)
+# - gnome-software: GUI store (dev OS thường dùng apt/flatpak)
+# - cups: in ấn
+# - gnome-remote-desktop: chia sẻ màn hình / RDP
+# - seahorse: GUI GPG / keyring

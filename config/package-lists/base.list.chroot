@@ -1,0 +1,104 @@
+# Base recommends for Lotus OS with --apt-recommends false
+# live-build applies that flag to ALL apt installs (not just GNOME).
+# Depends still install; Recommends do not — this file puts back packages that
+# would otherwise leave the live image / desktop / tools broken or half-working.
+#
+# Sources: live-manual §apt-recommends, live-boot/live-config Recommends on
+# Trixie, and Recommends of network-manager / gdm3 / gnome-shell /
+# gnome-settings-daemon / podman / apt / git / nautilus.
+#
+# Already covered by "! Packages Priority standard" in standard.list.chroot
+# (do not need to repeat): locales, ca-certificates, libpam-systemd,
+# systemd-timesyncd, openssh-client, pciutils, iproute2, less,
+# linux-sysctl-defaults, …
+#
+# Intentionally omitted (bloat / niche): live-*-doc, locales-all, rygel,
+# gnome-user-docs, cups*, gnome-remote-desktop, buildah, criu,
+# switcheroo-control, xserver-xephyr.
+
+# --- Live boot/config (CRITICAL — live-manual names these explicitly) ---
+# Without user-setup: no live user → cannot log in.
+# Without sudo: live user cannot shut down / elevate (also listed in standard).
+user-setup
+sudo
+live-tools
+# live-config keyboard component expects console-setup (+ keyboard-configuration).
+console-setup
+keyboard-configuration
+# live-boot recommends — UUID/rsync used by live tooling; eject for media/Nautilus.
+uuid-runtime
+rsync
+eject
+
+# --- NetworkManager stack (Wi-Fi / policykit break if missing) ---
+# NM Recommends on Trixie: wpasupplicant, wireless-regdb, dnsmasq-base, …
+wpasupplicant
+wireless-regdb
+dnsmasq-base
+polkitd
+# Advanced connection editor (gnome-control-center also recommends this).
+nm-connection-editor
+network-manager-l10n
+# Optional but common on laptops; small cost vs. broken WWAN/tethering.
+modemmanager
+mobile-broadband-provider-info
+ppp
+
+# --- Session / privilege / user bus ---
+# dbus-user-session: GNOME portals, PipeWire, rootless podman (libpam-systemd Rec).
+# pkexec: gnome-settings-daemon Rec — GUI privilege prompts.
+dbus-user-session
+pkexec
+
+# --- GNOME soft deps that are Recommends (shell/settings feel broken without) ---
+# EDS daemon: gnome-shell Rec (calendar/clock integration).
+evolution-data-server
+# IME: gnome-shell Rec; with recommends false also pull GTK frontends.
+ibus
+ibus-gtk
+ibus-gtk3
+ibus-gtk4
+im-config
+# # Uncomment for Vietnamese typing:
+# ibus-unikey
+power-profiles-daemon
+iio-sensor-proxy
+bolt
+x11-xserver-utils
+x11-xkb-utils
+iso-codes
+cracklib-runtime
+libnss-myhostname
+gnome-bluetooth-sendto
+# Nautilus Rec — thumbnails / SVG / Space preview.
+libgdk-pixbuf2.0-bin
+librsvg2-common
+gnome-sushi
+# gdm3 Rec — Xorg stack helps on hardware where Wayland is flaky; Xwayland
+# already comes in via gnome-session Depends.
+xserver-xorg
+
+# --- Podman (standard.list) Recommends needed for rootless use ---
+uidmap
+catatonit
+passt
+containers-storage
+
+# --- TLS / VCS helpers often only Recommends ---
+# ca-certificates is Priority:standard (already via standard.list) — listed
+# here so base stays correct if that line is ever removed.
+ca-certificates
+patch
+bash-completion
+
+# --- Storage / USB / fonts commonly expected on a live workstation ---
+fuse3
+ntfs-3g
+dosfstools
+usbutils
+fonts-dejavu-core
+fonts-noto-color-emoji
+
+# --- Optional hardware helpers (safe; enable if you want firmware GUI) ---
+# fwupd
+# switcheroo-control

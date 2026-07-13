@@ -17,7 +17,7 @@ lb config noauto \
 	--firmware-binary true \
 	--linux-packages "linux-image linux-headers" \
 	--source false \
-	--apt-recommends true \
+	--apt-recommends false \
 	--iso-application "Lotus OS" \
 	--iso-publisher "Lotus OS Project" \
 	--iso-volume "Lotus OS Trixie" \
