@@ -38,10 +38,7 @@ live-image-*.zsync
 build.log
 
 # Generated output (keep directory via .gitkeep if added later)
-output/*.iso
-output/*.sha256
-output/test-vm/
-output/*.qcow2
+output
 
 # Editor / OS / agent local state
 *~
