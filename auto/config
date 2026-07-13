@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+lb config noauto \
+	--mode debian \
+	--distribution trixie \
+	--parent-distribution trixie \
+	--parent-debian-installer-distribution trixie \
+	--architectures amd64 \
+	--binary-images iso-hybrid \
+	--archive-areas "main contrib non-free-firmware" \
+	--debian-installer live \
+	--debian-installer-gui true \
+	--debian-installer-preseedfile preseed.cfg \
+	--bootloader grub-efi \
+	--firmware-chroot true \
+	--firmware-binary true \
+	--linux-packages "linux-image linux-headers" \
+	--source false \
+	--apt-recommends true \
+	--iso-application "Lotus OS" \
+	--iso-publisher "Lotus OS Project" \
+	--iso-volume "Lotus OS Trixie" \
+	"${@}"

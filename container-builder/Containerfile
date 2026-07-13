@@ -1,0 +1,37 @@
+FROM docker.io/debian:trixie-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	ca-certificates \
+	git \
+	make \
+	sudo \
+	live-build \
+	live-boot \
+	live-config \
+	debootstrap \
+	squashfs-tools \
+	xorriso \
+	isolinux \
+	syslinux-utils \
+	grub-pc-bin \
+	grub-efi-amd64-bin \
+	mtools \
+	dosfstools \
+	fakeroot \
+	mtools \
+	dosfstools \
+	fakeroot \
+	file \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+COPY entrypoint.sh /usr/local/bin/lotus-build-entrypoint.sh
+RUN chmod +x /usr/local/bin/lotus-build-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/lotus-build-entrypoint.sh"]

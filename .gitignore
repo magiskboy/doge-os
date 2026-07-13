@@ -1,0 +1,51 @@
+# live-build working directories
+chroot/
+cache/
+binary/
+binary.deb/
+binary.udeb/
+binary.modified_timestamps
+local/
+.debootstrap/
+.build/
+unpacked-initrd/
+
+# live-build lock / stage markers
+.lock
+
+# live-build generated config (from `lb config` / `make config`)
+config/bootstrap
+config/binary
+config/chroot
+config/common
+config/source
+config/build
+
+# live-build manifests / package lists at repo root
+chroot.files
+chroot.packages.*
+live-image-*.contents
+live-image-*.files
+live-image-*.packages
+live-image-*.iso
+live-image-*.img
+live-image-*.tar*
+live-image-*.zsync
+
+# Build logs and ISOs
+*.iso
+*.log
+build.log
+
+# Generated output (keep directory via .gitkeep if added later)
+output/*.iso
+output/*.sha256
+output/test-vm/
+output/*.qcow2
+
+# Editor / OS / agent local state
+*~
+.DS_Store
+.idea/
+.vscode/
+.specstory/
