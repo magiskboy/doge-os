@@ -13,11 +13,9 @@ eza
 fd-find
 ripgrep
 openssh-server
-python3.13
-python3-pip
-nodejs
-npm
 clang
+pkg-config
+libssl-dev
 bat
 kind
 kubectl

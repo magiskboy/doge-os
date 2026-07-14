@@ -1,0 +1,26 @@
+#!/bin/sh
+# Setup Rust via rustup into /etc/skel (copied to new/live users by adduser).
+# build-essential, clang, pkg-config, libssl-dev come from package-lists.
+# Use --no-modify-path: .cargo/env hardcodes absolute paths; PATH is set in skel .zshrc.
+set -e
+
+export HOME=/etc/skel
+unset CARGO_HOME RUSTUP_HOME
+
+curl --proto '=https' --tlsv1.2 -fsSf https://sh.rustup.rs \
+	| sh -s -- -y --no-modify-path \
+		--default-toolchain stable \
+		--profile default
+
+# Make .cargo/env portable after skel → $HOME copy (rustup embeds absolute {cargo_bin}).
+cat > /etc/skel/.cargo/env <<'EOF'
+#!/bin/sh
+# rustup shell setup (portable for /etc/skel → user home)
+case ":${PATH}:" in
+	*:"$HOME/.cargo/bin":*)
+		;;
+	*)
+		export PATH="$HOME/.cargo/bin:$PATH"
+		;;
+esac
+EOF

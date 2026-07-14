@@ -1,10 +1,15 @@
 #!/bin/sh
-# Set zsh as the default login shell for new users (Debian Wiki / adduser.conf).
+# Setup zsh for new users: default login shell + Oh My Zsh in /etc/skel.
+# Packages (zsh, zsh-autosuggestions, zsh-syntax-highlighting) come from package-lists.
+# Use GitHub archive (not git clone --filter): partial clones hang under fakeroot.
+set -e
+
+OMZ_COMMIT=677a4592b18c08ddea737f8aca70bac0e9fc9313
+
+# --- Default login shell (adduser / live-config) ---
 # Live user is created at boot by live-config → user-setup-apply → adduser, which
 # reads DSHELL. On Debian adduser ≥3.15x the stock line is commented (#DSHELL=…),
 # so a plain ^DSHELL= sed never applies — leave bash as the effective default.
-set -e
-
 if ! command -v zsh >/dev/null 2>&1 && [ ! -x /bin/zsh ] && [ ! -x /usr/bin/zsh ]; then
 	echo "zsh is not installed — add it to package-lists before this hook" >&2
 	exit 1
@@ -34,3 +39,15 @@ fi
 if [ -f /etc/shells ] && ! grep -qxF "$ZSH_PATH" /etc/shells; then
 	echo "$ZSH_PATH" >> /etc/shells
 fi
+
+# --- Oh My Zsh → /etc/skel (picked up by adduser) ---
+ZSH=/etc/skel/.oh-my-zsh
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+
+curl -fsSL -o "$TMP/omz.tar.gz" \
+	"https://github.com/ohmyzsh/ohmyzsh/archive/${OMZ_COMMIT}.tar.gz"
+tar -xzf "$TMP/omz.tar.gz" -C "$TMP"
+rm -rf "$ZSH"
+mv "$TMP/ohmyzsh-${OMZ_COMMIT}" "$ZSH"

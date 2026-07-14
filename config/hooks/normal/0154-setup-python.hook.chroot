@@ -1,0 +1,33 @@
+#!/bin/sh
+# Setup Python stack: uv + managed CPython + ruff (system-wide).
+# pyright LSP is installed by 0153-setup-nodejs (npm). PATH/python symlinks
+# match skel nvim config (python3_host_prog = /usr/local/bin/python).
+set -e
+
+UV_VER=0.11.28
+PYTHON_VER=3.13
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+curl -fsSL -o uv.tar.gz \
+	"https://github.com/astral-sh/uv/releases/download/${UV_VER}/uv-x86_64-unknown-linux-gnu.tar.gz"
+tar -xzf uv.tar.gz
+install -m 755 uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv
+install -m 755 uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx
+
+export UV_PYTHON_INSTALL_DIR=/usr/local/share/uv/python
+export UV_TOOL_DIR=/usr/local/share/uv/tools
+export UV_TOOL_BIN_DIR=/usr/local/bin
+mkdir -p "$UV_PYTHON_INSTALL_DIR" "$UV_TOOL_DIR"
+
+uv python install "$PYTHON_VER"
+
+PY=$(uv python find "$PYTHON_VER")
+ln -sfn "$PY" /usr/local/bin/python3.13
+ln -sfn python3.13 /usr/local/bin/python3
+ln -sfn python3.13 /usr/local/bin/python
+
+uv tool install ruff

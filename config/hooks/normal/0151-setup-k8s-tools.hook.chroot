@@ -1,0 +1,31 @@
+#!/bin/sh
+# Setup k8s tools from upstream releases (not in Debian apt): k9s, helm, helmfile.
+# kubectl and kind come from package-lists.
+set -e
+
+K9S_VER=0.51.0
+HELM_VER=4.2.3
+HELMFILE_VER=1.7.0
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+cd "$TMP"
+
+# --- k9s ---
+curl -fsSL -o k9s.tar.gz \
+	"https://github.com/derailed/k9s/releases/download/v${K9S_VER}/k9s_Linux_amd64.tar.gz"
+tar -xzf k9s.tar.gz
+install -m 755 k9s /usr/local/bin/k9s
+
+# --- helm ---
+curl -fsSL -o helm.tar.gz \
+	"https://get.helm.sh/helm-v${HELM_VER}-linux-amd64.tar.gz"
+tar -xzf helm.tar.gz
+install -m 755 linux-amd64/helm /usr/local/bin/helm
+
+# --- helmfile ---
+curl -fsSL -o helmfile.tar.gz \
+	"https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VER}/helmfile_${HELMFILE_VER}_linux_amd64.tar.gz"
+tar -xzf helmfile.tar.gz
+install -m 755 helmfile /usr/local/bin/helmfile
