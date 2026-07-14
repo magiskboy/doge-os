@@ -1,0 +1,76 @@
+# vim: ft=gitconfig
+# System-wide git defaults for Lotus OS.
+# User identity: set name/email/signingkey yourself (git config --global …).
+
+[color "branch"]
+	current = green bold
+	local = green
+	remote = yellow
+
+[color "diff"]
+	frag = magenta
+	meta = yellow
+	new = green
+	old = red
+	newMoved = cyan
+	oldMoved = blue
+
+[color "status"]
+	added = green reverse
+	changed = yellow reverse
+	untracked = red reverse
+
+[core]
+	abbrev = 12
+	autocrlf = input
+	editor = nvim
+	excludesfile = /etc/gitignore
+	pager = delta
+
+[delta]
+	syntax-theme = Monokai Extended
+	side-by-side = true
+	navigate = true
+
+[interactive]
+	diffFilter = delta --color-only
+
+[diff]
+	colorMoved = zebra
+	tool = vimdiff
+
+[diff "bin"]
+	textconv = hexdump -v -C
+
+[difftool "delta"]
+	cmd = delta $LOCAL $REMOTE
+
+[push]
+	# Do not automatically push annotated tags with branches.
+	followTags = false
+
+[commit]
+	gpgsign = true
+	template = /etc/gitmessage
+
+[merge]
+	tool = vimdiff
+
+[mergetool]
+	prompt = true
+
+[mergetool "vimdiff"]
+	cmd = vim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+
+[difftool]
+	prompt = false
+
+[pull]
+	rebase = false
+	ff = only
+
+[gpg]
+	format = ssh
+
+[include]
+	path = ~/.gitconfig.local

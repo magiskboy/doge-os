@@ -43,6 +43,8 @@ network-manager-l10n
 modemmanager
 mobile-broadband-provider-info
 ppp
+network-manager-openvpn
+network-manager-openvpn-gnome
 
 # --- Session / privilege / user bus ---
 # dbus-user-session: GNOME portals, PipeWire, rootless podman (libpam-systemd Rec).
@@ -59,18 +61,18 @@ ibus-gtk
 ibus-gtk3
 ibus-gtk4
 im-config
-# # Uncomment for Vietnamese typing:
-# ibus-unikey
+# Vietnamese IME: ibus-bamboo via package-lists/bamboo.list.chroot (+ OBS archives)
 power-profiles-daemon
 iio-sensor-proxy
 bolt
+colord
 x11-xserver-utils
 x11-xkb-utils
 iso-codes
 cracklib-runtime
 libnss-myhostname
 gnome-bluetooth-sendto
-# Nautilus Rec — thumbnails / SVG / Space preview.
+libspa-0.2-bluetooth
 libgdk-pixbuf2.0-bin
 librsvg2-common
 gnome-sushi

@@ -1,0 +1,29 @@
+#!/bin/sh
+# Enable Hack Nerd Font (shipped via includes.chroot) as system default.
+# Fonts: /usr/share/fonts/truetype/hack-nerd-font (Nerd Fonts v3.4.0 Hack).
+set -e
+
+FONT_DIR=/usr/share/fonts/truetype/hack-nerd-font
+CONF_AVAIL=/usr/share/fontconfig/conf.avail/60-hack-nerd-font.conf
+CONF_D=/etc/fonts/conf.d/60-hack-nerd-font.conf
+
+if [ ! -d "$FONT_DIR" ]; then
+	echo "Hack Nerd Font missing at $FONT_DIR — expected in includes.chroot" >&2
+	exit 1
+fi
+
+if [ ! -f "$CONF_AVAIL" ]; then
+	echo "fontconfig conf missing: $CONF_AVAIL" >&2
+	exit 1
+fi
+
+mkdir -p /etc/fonts/conf.d
+ln -sfn "$CONF_AVAIL" "$CONF_D"
+
+if command -v fc-cache >/dev/null 2>&1; then
+	fc-cache -f "$FONT_DIR"
+fi
+
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+fi

@@ -1,0 +1,42 @@
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+*~
+*.swp
+*.swo
+*.swn
+*.bak
+*.orig
+.idea/
+.vscode/
+*.code-workspace
+.fleet/
+*.sublime-project
+*.sublime-workspace
+
+# Agent / AI local state
+.specstory/
+.cursor/
+.cursorindexingignore
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+*.pid
+*.seed
+.cache/
+
+# Environment / secrets (local overrides; keep repo .env.example)
+.env.local
+.env.*.local
+*.pem
+*.p12

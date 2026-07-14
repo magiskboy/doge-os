@@ -1,0 +1,3 @@
+# Official DBeaver Community APT repository (live / installed system).
+# https://dbeaver.io/download/
+deb [arch=amd64] https://dbeaver.io/debs/dbeaver-ce /

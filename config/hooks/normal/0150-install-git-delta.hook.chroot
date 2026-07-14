@@ -1,15 +1,17 @@
 #!/bin/sh
-# Install git-delta from GitHub release (.deb not in Debian apt).
+# Install delta (git pager) from GitHub release tarball.
 set -e
 
 DELTA_VER=0.19.2
+DELTA_ARCH=x86_64-unknown-linux-gnu
 
 TMP=$(mktemp -d)
 cleanup() { rm -rf "$TMP"; }
 trap cleanup EXIT
 cd "$TMP"
 
-curl -fsSL -o git-delta.deb \
-	"https://github.com/dandavison/delta/releases/download/${DELTA_VER}/git-delta_${DELTA_VER}_amd64.deb"
+curl -fsSL -o delta.tar.gz \
+	"https://github.com/dandavison/delta/releases/download/${DELTA_VER}/delta-${DELTA_VER}-${DELTA_ARCH}.tar.gz"
 
-apt-get install -y ./git-delta.deb
+tar -xzf delta.tar.gz
+install -m 755 "delta-${DELTA_VER}-${DELTA_ARCH}/delta" /usr/local/bin/delta

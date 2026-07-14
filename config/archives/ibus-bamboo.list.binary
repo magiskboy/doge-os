@@ -1,0 +1,6 @@
+# OpenBuildService Debian Testing builds of ibus-bamboo (live / installed system).
+# https://software.opensuse.org/download.html?project=home%3Alamlng&package=ibus-bamboo
+#
+# Prefer OBS origin over download.opensuse.org redirector (mirror hash skew).
+# https://github.com/openSUSE/MirrorCache/issues/600
+deb [arch=amd64] https://downloadcontent.opensuse.org/repositories/home:/lamlng/Debian_Testing/ /

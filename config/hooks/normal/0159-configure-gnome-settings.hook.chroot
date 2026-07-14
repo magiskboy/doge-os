@@ -1,0 +1,16 @@
+#!/bin/sh
+# Compile Lotus gsettings schema overrides and set Dash / Dash-to-Dock defaults.
+set -e
+
+SCHEMA_DIR=/usr/share/glib-2.0/schemas
+
+# Favorites order (left → right / top → bottom):
+# Files, Chrome, VS Code, DBeaver, Terminal (Ptyxis), Settings
+cat > "$SCHEMA_DIR/90_lotus-favorite-apps.gschema.override" <<'EOF'
+[org.gnome.shell]
+favorite-apps=['org.gnome.Nautilus.desktop', 'google-chrome.desktop', 'code.desktop', 'dbeaver-ce.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Settings.desktop']
+EOF
+
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+	glib-compile-schemas "$SCHEMA_DIR"
+fi

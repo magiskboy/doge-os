@@ -1,0 +1,14 @@
+#!/bin/sh
+# Enable power-profiles-daemon for GNOME Quick Settings Power Mode toggle.
+# Safe in live-build chroot where systemd is not running as PID 1.
+set -e
+
+unit=power-profiles-daemon.service
+if [ ! -f "/lib/systemd/system/${unit}" ] && [ ! -f "/usr/lib/systemd/system/${unit}" ]; then
+	echo "${unit} missing — is power-profiles-daemon in package-lists?" >&2
+	exit 1
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+	systemctl enable "${unit}" >/dev/null 2>&1 || true
+fi

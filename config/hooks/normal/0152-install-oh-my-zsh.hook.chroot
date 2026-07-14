@@ -16,9 +16,4 @@ tar -xzf "$TMP/omz.tar.gz" -C "$TMP"
 rm -rf "$ZSH"
 mv "$TMP/ohmyzsh-${OMZ_COMMIT}" "$ZSH"
 
-# user-setup creates the first user via adduser, which reads DSHELL.
-# There is no d-i passwd/* preseed key for login shell.
-sed -i 's|^DSHELL=.*|DSHELL=/bin/zsh|' /etc/adduser.conf
-if [ -f /etc/default/useradd ]; then
-	sed -i 's|^#\{0,1\}SHELL=.*|SHELL=/bin/zsh|' /etc/default/useradd
-fi
+# Default login shell (DSHELL / chsh) is set in 0148-set-zsh-default-shell.

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Show Ptyxis as "Terminal" without patching the package .desktop.
+# XDG_DATA_DIRS prefers /usr/local/share over /usr/share, so an override with
+# the same desktop-file-id survives `apt upgrade ptyxis`.
+set -e
+
+SRC=/usr/share/applications/org.gnome.Ptyxis.desktop
+DST_DIR=/usr/local/share/applications
+DST="$DST_DIR/org.gnome.Ptyxis.desktop"
+
+[ -f "$SRC" ] || exit 0
+
+mkdir -p "$DST_DIR"
+
+awk '
+	BEGIN { in_main = 1 }
+	/^\[Desktop Action/ { in_main = 0 }
+	in_main && /^Name=/ {
+		print "Name=Terminal"
+		next
+	}
+	in_main && /^Name\[/ {
+		if (match($0, /^Name\[[^]]+\]/))
+			print substr($0, RSTART, RLENGTH) "=Terminal"
+		else
+			print
+		next
+	}
+	{ print }
+' "$SRC" > "$DST.tmp"
+mv "$DST.tmp" "$DST"
+chmod 644 "$DST"
+
+if command -v update-desktop-database >/dev/null 2>&1; then
+	update-desktop-database "$DST_DIR" >/dev/null 2>&1 || true
+fi

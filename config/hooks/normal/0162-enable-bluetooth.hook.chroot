@@ -1,0 +1,14 @@
+#!/bin/sh
+# Enable bluetoothd for GNOME Quick Settings Bluetooth toggle.
+# Safe in live-build chroot where systemd is not running as PID 1.
+set -e
+
+unit=bluetooth.service
+if [ ! -f "/lib/systemd/system/${unit}" ] && [ ! -f "/usr/lib/systemd/system/${unit}" ]; then
+	echo "${unit} missing — is bluez installed (via gnome-bluetooth-sendto)?" >&2
+	exit 1
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+	systemctl enable "${unit}" >/dev/null 2>&1 || true
+fi

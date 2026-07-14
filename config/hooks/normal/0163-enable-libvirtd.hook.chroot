@@ -1,0 +1,20 @@
+#!/bin/sh
+# Enable libvirtd so Virtual Machine Manager can talk to local QEMU/KVM.
+# Safe in live-build chroot where systemd is not running as PID 1.
+set -e
+
+unit=libvirtd.service
+if [ ! -f "/lib/systemd/system/${unit}" ] && [ ! -f "/usr/lib/systemd/system/${unit}" ]; then
+	echo "${unit} missing — is libvirt-daemon-system in package-lists?" >&2
+	exit 1
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+	systemctl enable "${unit}" >/dev/null 2>&1 || true
+	# Socket activation units commonly shipped with libvirt
+	for u in virtlogd.socket virtlockd.socket libvirtd.socket; do
+		if [ -f "/lib/systemd/system/${u}" ] || [ -f "/usr/lib/systemd/system/${u}" ]; then
+			systemctl enable "${u}" >/dev/null 2>&1 || true
+		fi
+	done
+fi

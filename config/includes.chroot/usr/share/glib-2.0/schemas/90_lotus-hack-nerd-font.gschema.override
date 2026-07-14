@@ -1,0 +1,6 @@
+# Lotus OS — Hack Nerd Font as GNOME defaults (v3.4.0).
+# Ptyxis uses monospace via use-system-font=true.
+[org.gnome.desktop.interface]
+font-name='Hack Nerd Font Propo 11'
+document-font-name='Hack Nerd Font Propo 12'
+monospace-font-name='Hack Nerd Font Mono 11'

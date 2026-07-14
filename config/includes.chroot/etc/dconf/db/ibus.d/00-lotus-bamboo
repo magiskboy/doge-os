@@ -1,0 +1,3 @@
+# Default IBus engines (mirrors: dconf write /desktop/ibus/general/preload-engines)
+[general]
+preload-engines=['BambooUs', 'Bamboo']

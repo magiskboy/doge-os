@@ -1,0 +1,3 @@
+# Official Google Chrome APT mirror (build-time).
+# https://www.google.com/linuxrepositories/
+deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main

@@ -1,4 +1,7 @@
 #!/bin/sh
+# Prefer including ca-certificates in debootstrap when a real bootstrap runs.
+# Rootless/fakeroot builds usually reuse cache/bootstrap and inject CA certs
+# via scripts/prepare-live-build.sh instead (re-debootstrap fails there).
 set -e
 
 lb config noauto \
@@ -18,6 +21,7 @@ lb config noauto \
 	--linux-packages "linux-image linux-headers" \
 	--source false \
 	--apt-recommends false \
+	--debootstrap-options "--include=ca-certificates" \
 	--iso-application "Lotus OS" \
 	--iso-publisher "Lotus OS Project" \
 	--iso-volume "Lotus OS Trixie" \

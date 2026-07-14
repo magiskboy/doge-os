@@ -1,0 +1,9 @@
+# OpenBuildService Debian Testing builds of ibus-bamboo (build-time).
+# PPA is Ubuntu-only; this repo targets Debian Testing / Trixie.
+# https://software.opensuse.org/download.html?project=home%3Alamlng&package=ibus-bamboo
+#
+# Use downloadcontent (OBS origin) instead of download.opensuse.org (MirrorCache
+# redirector): mirrors often serve a rebuilt .deb under the same filename while
+# Packages metadata still has the previous hash → apt "unexpected size".
+# https://github.com/openSUSE/MirrorCache/issues/600
+deb [arch=amd64] https://downloadcontent.opensuse.org/repositories/home:/lamlng/Debian_Testing/ /

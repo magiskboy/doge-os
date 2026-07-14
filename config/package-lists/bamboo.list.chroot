@@ -1,0 +1,5 @@
+# Via config/archives/ibus-bamboo.list.{chroot,binary}
+# ibus / ibus-gtk* already in base.list.chroot
+ibus-bamboo
+# Needed for hook: dconf update (ibus preload-engines defaults)
+dconf-cli

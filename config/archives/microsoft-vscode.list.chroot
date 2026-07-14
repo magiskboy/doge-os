@@ -1,0 +1,3 @@
+# Official Microsoft VS Code APT mirror (build-time).
+# https://code.visualstudio.com/docs/setup/linux
+deb [arch=amd64] https://packages.microsoft.com/repos/code stable main

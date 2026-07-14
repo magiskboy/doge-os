@@ -1,5 +1,19 @@
 #!/bin/sh
-# Boot Lotus OS ISO in QEMU (UEFI when OVMF is available).
+# Boot Lotus OS ISO in QEMU as a laptop-like guest (UEFI when OVMF is available).
+#
+# Default hardware profile (q35):
+#   - Display 1920x1080 (virtio-vga + EDID)
+#   - Wired Ethernet (virtio-net, user-mode NAT, SSH hostfwd :2222)
+#   - Intel HDA audio (speaker + microphone)
+#   - USB 3.0 + tablet/keyboard
+#   - ACPI power button (built into q35; battery/AC/lid need newer QEMU patches)
+#
+# Optional host USB passthrough (QEMU has no emulated Wi‑Fi/BT radios):
+#   LOTUS_USB_BT=1              auto-pass first USB Bluetooth adapter
+#   LOTUS_USB_BT=vvvv:pppp      pass specific Bluetooth device
+#   LOTUS_USB_WIFI=vvvv:pppp    pass USB Wi‑Fi adapter
+#
+# Other knobs: LOTUS_MEMORY, LOTUS_SMP, LOTUS_DISK_SIZE, LOTUS_VGA_GL=1
 set -e
 
 . "$(CDPATH= cd -- "$(dirname "$0")" && pwd)/lib.sh"
@@ -10,6 +24,8 @@ DISK="$VM_DIR/disk.qcow2"
 DISK_SIZE="${LOTUS_DISK_SIZE:-32G}"
 MEMORY="${LOTUS_MEMORY:-4096}"
 SMP="${LOTUS_SMP:-4}"
+SCREEN_W="${LOTUS_SCREEN_W:-1920}"
+SCREEN_H="${LOTUS_SCREEN_H:-1080}"
 
 if [ ! -f "$ISO" ]; then
 	echo "error: ISO not found at $ISO" >&2
@@ -34,6 +50,38 @@ find_ovmf_dir() {
 	return 1
 }
 
+pick_audio_driver() {
+	for driver in pipewire pa alsa sdl; do
+		if qemu-system-x86_64 -audio help 2>/dev/null | grep -qx "$driver"; then
+			echo "$driver"
+			return 0
+		fi
+	done
+	return 1
+}
+
+# Parse vvvv:pppp into -device usb-host,vendorid=...,productid=...
+usb_host_args() {
+	id="$1"
+	vendor="$(printf '%s' "$id" | cut -d: -f1)"
+	product="$(printf '%s' "$id" | cut -d: -f2)"
+	if [ -z "$vendor" ] || [ -z "$product" ] || [ "$vendor" = "$product" ]; then
+		echo "error: invalid USB id '$id' (expected vvvv:pppp)" >&2
+		return 1
+	fi
+	# Normalize hex without 0x prefix for QEMU
+	vendor="$(printf '%s' "$vendor" | tr 'A-F' 'a-f')"
+	product="$(printf '%s' "$product" | tr 'A-F' 'a-f')"
+	printf -- '-device usb-host,vendorid=0x%s,productid=0x%s' "$vendor" "$product"
+}
+
+find_usb_bluetooth() {
+	if ! command -v lsusb >/dev/null 2>&1; then
+		return 1
+	fi
+	lsusb 2>/dev/null | grep -i bluetooth | head -n1 | sed -n 's/.*ID \([0-9a-fA-F]\{4\}:[0-9a-fA-F]\{4\}\).*/\1/p'
+}
+
 OVMF_DIR="$(find_ovmf_dir || true)"
 OVMF_VARS="$VM_DIR/OVMF_VARS.fd"
 USE_UEFI=0
@@ -48,10 +96,10 @@ else
 fi
 
 if [ -r /dev/kvm ]; then
-	MACHINE="q35,accel=kvm"
+	MACHINE="q35,accel=kvm,usb=off"
 	CPU="host"
 else
-	MACHINE="q35"
+	MACHINE="q35,usb=off"
 	CPU="max"
 	echo "warning: /dev/kvm not available, using software emulation (slow)" >&2
 fi
@@ -71,70 +119,108 @@ else
 	fi
 fi
 
-echo "Lotus OS"
-echo "  ISO:  $ISO"
-echo "  Disk: $DISK ($DISK_SIZE)"
-echo "  RAM:  ${MEMORY} MiB, CPUs: $SMP"
-echo "  UEFI: $([ "$USE_UEFI" -eq 1 ] && echo yes || echo no)"
-echo ""
+AUDIO_DRIVER="$(pick_audio_driver || true)"
+EXTRA_USB=""
 
-launch_qemu() {
-	vga_device="$1"
+# Bluetooth: host USB passthrough (emulation removed on modern x86 QEMU builds)
+case "${LOTUS_USB_BT:-}" in
+	""|0|false|no) ;;
+	1|true|yes)
+		bt_id="$(find_usb_bluetooth || true)"
+		if [ -n "$bt_id" ]; then
+			EXTRA_USB="$EXTRA_USB $(usb_host_args "$bt_id")"
+			echo "USB Bluetooth passthrough: $bt_id"
+		else
+			echo "warning: LOTUS_USB_BT set but no USB Bluetooth device found" >&2
+		fi
+		;;
+	*:*)
+		EXTRA_USB="$EXTRA_USB $(usb_host_args "$LOTUS_USB_BT")"
+		echo "USB Bluetooth passthrough: $LOTUS_USB_BT"
+		;;
+	*)
+		echo "error: LOTUS_USB_BT must be 1 or vvvv:pppp" >&2
+		exit 1
+		;;
+esac
 
-	if [ -n "$DISPLAY_BACKEND" ]; then
-		display_args="-display $DISPLAY_BACKEND"
-	else
-		display_args="-nographic"
-	fi
-
-	# shellcheck disable=SC2086
-	if [ "$USE_UEFI" -eq 1 ]; then
-		exec qemu-system-x86_64 \
-			-name lotus-os \
-			-machine "$MACHINE" \
-			-cpu "$CPU" \
-			-m "$MEMORY" \
-			-smp "$SMP" \
-			-drive if=pflash,format=raw,readonly=on,file="$OVMF_DIR/OVMF_CODE.fd" \
-			-drive if=pflash,format=raw,file="$OVMF_VARS" \
-			-device ich9-ahci,id=ahci \
-			-drive file="$DISK",format=qcow2,if=none,id=disk0 \
-			-device ide-hd,drive=disk0,bus=ahci.0 \
-			-drive file="$ISO",format=raw,media=cdrom,if=none,id=cdrom0 \
-			-device ide-cd,drive=cdrom0,bus=ahci.1 \
-			-netdev user,id=net0,hostfwd=tcp::2222-:22 \
-			-device virtio-net-pci,netdev=net0 \
-			-device qemu-xhci,id=xhci \
-			-device usb-tablet,bus=xhci.0 \
-			-device virtio-rng-pci \
-			-device "$vga_device" \
-			$display_args \
-			-boot order=d,menu=on,splash-time=5000
-	fi
-
-	exec qemu-system-x86_64 \
-		-name lotus-os \
-		-machine "$MACHINE" \
-		-cpu "$CPU" \
-		-m "$MEMORY" \
-		-smp "$SMP" \
-		-device ich9-ahci,id=ahci \
-		-drive file="$DISK",format=qcow2,if=none,id=disk0 \
-		-device ide-hd,drive=disk0,bus=ahci.0 \
-		-drive file="$ISO",format=raw,media=cdrom,if=none,id=cdrom0 \
-		-device ide-cd,drive=cdrom0,bus=ahci.1 \
-		-netdev user,id=net0,hostfwd=tcp::2222-:22 \
-		-device virtio-net-pci,netdev=net0 \
-		-device qemu-xhci,id=xhci \
-		-device usb-tablet,bus=xhci.0 \
-		-device virtio-rng-pci \
-		-device "$vga_device" \
-		$display_args \
-		-boot order=d,menu=on,splash-time=5000
-}
+# Wi‑Fi: no emulated 802.11 NIC in QEMU; USB Wi‑Fi dongle passthrough only
+case "${LOTUS_USB_WIFI:-}" in
+	""|0|false|no) ;;
+	*:*)
+		EXTRA_USB="$EXTRA_USB $(usb_host_args "$LOTUS_USB_WIFI")"
+		echo "USB Wi‑Fi passthrough: $LOTUS_USB_WIFI"
+		;;
+	*)
+		echo "error: LOTUS_USB_WIFI must be vvvv:pppp (QEMU cannot emulate Wi‑Fi)" >&2
+		exit 1
+		;;
+esac
 
 if [ "$USE_UEFI" -eq 1 ]; then
-	launch_qemu virtio-vga
+	if [ "${LOTUS_VGA_GL:-0}" = "1" ] && qemu-system-x86_64 -device help 2>/dev/null | grep -q 'virtio-vga-gl'; then
+		VGA_DEVICE="virtio-vga-gl,xres=${SCREEN_W},yres=${SCREEN_H}"
+	else
+		VGA_DEVICE="virtio-vga,xres=${SCREEN_W},yres=${SCREEN_H}"
+	fi
 else
-	launch_qemu cirrus-vga
+	VGA_DEVICE="cirrus-vga"
 fi
+
+echo "Lotus OS (laptop profile)"
+echo "  ISO:     $ISO"
+echo "  Disk:    $DISK ($DISK_SIZE)"
+echo "  RAM:     ${MEMORY} MiB, CPUs: $SMP"
+echo "  Screen:  ${SCREEN_W}x${SCREEN_H}"
+echo "  VGA:     $VGA_DEVICE"
+echo "  Audio:   ${AUDIO_DRIVER:-none}"
+echo "  Network: wired virtio-net (user NAT, ssh localhost:2222)"
+echo "  UEFI:    $([ "$USE_UEFI" -eq 1 ] && echo yes || echo no)"
+echo "  Power:   ACPI power button (q35); no battery device in this QEMU"
+echo ""
+
+if [ -n "$DISPLAY_BACKEND" ]; then
+	display_args="-display $DISPLAY_BACKEND"
+else
+	display_args="-nographic"
+fi
+
+# shellcheck disable=SC2086
+set -- \
+	-name lotus-os \
+	-machine "$MACHINE" \
+	-cpu "$CPU" \
+	-m "$MEMORY" \
+	-smp "$SMP" \
+	-device ich9-ahci,id=ahci \
+	-drive file="$DISK",format=qcow2,if=none,id=disk0 \
+	-device ide-hd,drive=disk0,bus=ahci.0 \
+	-drive file="$ISO",format=raw,media=cdrom,if=none,id=cdrom0 \
+	-device ide-cd,drive=cdrom0,bus=ahci.1 \
+	-netdev user,id=net0,hostfwd=tcp::2222-:22 \
+	-device virtio-net-pci,netdev=net0 \
+	-device qemu-xhci,id=xhci \
+	-device usb-tablet,bus=xhci.0 \
+	-device usb-kbd,bus=xhci.0 \
+	-device virtio-rng-pci \
+	-device virtio-balloon-pci \
+	-device "$VGA_DEVICE" \
+	$display_args \
+	-boot order=d,menu=on,splash-time=5000
+
+if [ "$USE_UEFI" -eq 1 ]; then
+	set -- "$@" \
+		-drive if=pflash,format=raw,readonly=on,file="$OVMF_DIR/OVMF_CODE.fd" \
+		-drive if=pflash,format=raw,file="$OVMF_VARS"
+fi
+
+if [ -n "$AUDIO_DRIVER" ]; then
+	set -- "$@" -audio "$AUDIO_DRIVER,model=hda"
+fi
+
+# shellcheck disable=SC2086
+if [ -n "$EXTRA_USB" ]; then
+	set -- "$@" $EXTRA_USB
+fi
+
+exec qemu-system-x86_64 "$@"

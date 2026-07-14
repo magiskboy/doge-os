@@ -1,0 +1,5 @@
+# Lotus OS — GNOME Tweaks Titlebar Buttons defaults.
+# Maximize + Minimize on, Placement: Right
+# Equivalent: gsettings set org.gnome.desktop.wm.preferences button-layout ...
+[org.gnome.desktop.wm.preferences]
+button-layout='appmenu:minimize,maximize,close'

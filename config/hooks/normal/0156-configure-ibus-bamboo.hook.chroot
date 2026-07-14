@@ -1,0 +1,17 @@
+#!/bin/sh
+# Apply system defaults for ibus-bamboo (preload engines + GNOME input sources).
+set -e
+
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+	glib-compile-schemas /usr/share/glib-2.0/schemas
+fi
+
+if command -v dconf >/dev/null 2>&1; then
+	mkdir -p /etc/dconf/db/ibus.d
+	dconf update
+fi
+
+# Prefer IBus as the system input method framework (im-config).
+if command -v im-config >/dev/null 2>&1; then
+	im-config -n ibus || true
+fi

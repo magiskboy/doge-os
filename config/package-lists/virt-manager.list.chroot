@@ -1,0 +1,37 @@
+# Virtual Machine Manager + QEMU/KVM (Debian Wiki KVM)
+# Build uses --apt-recommends false — list Depends + needed Recommends explicitly.
+# qemu-system-x86 Provides qemu-kvm on amd64, satisfying libvirt's
+# "qemu-kvm | qemu-system" without pulling the full multi-arch qemu-system meta.
+
+virt-manager
+qemu-system-x86
+libvirt-daemon-system
+libvirt-clients
+
+# virt-manager Recommends (SPICE console embedded in the GUI)
+gir1.2-spiceclientgtk-3.0
+gir1.2-spiceclientglib-2.0
+
+# qemu-system-x86 Recommends — UEFI, disk tools, graphical/SPICE backends
+ovmf
+qemu-utils
+qemu-system-gui
+qemu-system-modules-spice
+qemu-system-modules-opengl
+qemu-block-extra
+
+# libvirt-daemon-driver-qemu Recommends (passt already in base.list for podman)
+swtpm
+swtpm-tools
+
+# libvirt-daemon Recommends needed for typical directory/file pools & host NICs
+libvirt-daemon-driver-storage-disk
+libvirt-daemon-driver-storage-logical
+libvirt-daemon-driver-interface
+libvirt-daemon-lock
+libvirt-daemon-plugin-lockd
+
+# Console viewer + kvm-ok helper + bridge utilities
+virt-viewer
+cpu-checker
+bridge-utils

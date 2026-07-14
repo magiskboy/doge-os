@@ -1,0 +1,36 @@
+#!/bin/sh
+# Set zsh as the default login shell for new users (Debian Wiki / adduser.conf).
+# Live user is created at boot by live-config → user-setup-apply → adduser, which
+# reads DSHELL. On Debian adduser ≥3.15x the stock line is commented (#DSHELL=…),
+# so a plain ^DSHELL= sed never applies — leave bash as the effective default.
+set -e
+
+if ! command -v zsh >/dev/null 2>&1 && [ ! -x /bin/zsh ] && [ ! -x /usr/bin/zsh ]; then
+	echo "zsh is not installed — add it to package-lists before this hook" >&2
+	exit 1
+fi
+
+# Prefer /bin/zsh (what Debian ships in /etc/shells); fall back to PATH.
+ZSH_PATH=/bin/zsh
+if [ ! -x "$ZSH_PATH" ]; then
+	ZSH_PATH=$(command -v zsh)
+fi
+
+if grep -qE '^[[:space:]]*#?[[:space:]]*DSHELL=' /etc/adduser.conf; then
+	sed -i -E "s|^[[:space:]]*#?[[:space:]]*DSHELL=.*|DSHELL=${ZSH_PATH}|" /etc/adduser.conf
+else
+	printf '\nDSHELL=%s\n' "$ZSH_PATH" >> /etc/adduser.conf
+fi
+
+if [ -f /etc/default/useradd ]; then
+	if grep -qE '^[[:space:]]*#?[[:space:]]*SHELL=' /etc/default/useradd; then
+		sed -i -E "s|^[[:space:]]*#?[[:space:]]*SHELL=.*|SHELL=${ZSH_PATH}|" /etc/default/useradd
+	else
+		printf '\nSHELL=%s\n' "$ZSH_PATH" >> /etc/default/useradd
+	fi
+fi
+
+# chsh only accepts shells listed here (Debian Wiki / Oh My Zsh).
+if [ -f /etc/shells ] && ! grep -qxF "$ZSH_PATH" /etc/shells; then
+	echo "$ZSH_PATH" >> /etc/shells
+fi
