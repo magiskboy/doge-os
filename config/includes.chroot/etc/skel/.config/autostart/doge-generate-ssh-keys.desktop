@@ -2,7 +2,7 @@
 Type=Application
 Name=Generate SSH Keys
 Comment=Create ed25519 and RSA SSH keys on first login
-Exec=/usr/local/bin/lotus-generate-ssh-keys-once.sh
+Exec=/usr/local/bin/doge-generate-ssh-keys-once.sh
 X-GNOME-Autostart-enabled=true
 NoDisplay=true
 Hidden=false

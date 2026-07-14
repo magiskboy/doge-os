@@ -1,0 +1,4 @@
+# Boot splash / branding for DogeOS
+# script.so ships in plymouth itself on Trixie (no plymouth-theme-script package).
+plymouth
+plymouth-themes

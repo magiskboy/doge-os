@@ -1,0 +1,38 @@
+#!/bin/sh
+# Activate DogeOS Plymouth + GDM dconf branding; rebuild initramfs.
+set -e
+
+THEME=doge
+THEME_FILE="/usr/share/plymouth/themes/${THEME}/${THEME}.plymouth"
+
+if [ -f "$THEME_FILE" ] && command -v plymouth-set-default-theme >/dev/null 2>&1; then
+	if command -v update-alternatives >/dev/null 2>&1; then
+		update-alternatives --install \
+			/usr/share/plymouth/themes/default.plymouth \
+			default.plymouth \
+			"$THEME_FILE" 100 || true
+		update-alternatives --set default.plymouth "$THEME_FILE" || true
+	fi
+	plymouth-set-default-theme "$THEME" || true
+	if command -v update-initramfs >/dev/null 2>&1; then
+		update-initramfs -u -k all
+	fi
+else
+	echo "warning: Plymouth theme not activated (missing theme or tool)" >&2
+fi
+
+# Compile GDM greeter dconf database
+if command -v dconf >/dev/null 2>&1 && [ -d /etc/dconf/db/gdm.d ]; then
+	dconf update || true
+fi
+
+# Point desktop-grub alternative at DogeOS art when desktop-base is present
+if [ -f /usr/share/backgrounds/dogeos/grub-16x9.png ] && \
+	command -v update-alternatives >/dev/null 2>&1; then
+	update-alternatives --install \
+		/usr/share/images/desktop-base/desktop-grub.png \
+		desktop-grub \
+		/usr/share/backgrounds/dogeos/grub-16x9.png 100 || true
+	update-alternatives --set desktop-grub \
+		/usr/share/backgrounds/dogeos/grub-16x9.png || true
+fi

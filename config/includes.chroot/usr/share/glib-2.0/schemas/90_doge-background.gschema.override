@@ -1,0 +1,9 @@
+# DogeOS — default desktop wallpaper
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/backgrounds/dogeos/wallpaper-4.jpg'
+picture-uri-dark='file:///usr/share/backgrounds/dogeos/wallpaper-4.jpg'
+picture-options='zoom'
+
+[org.gnome.desktop.screensaver]
+picture-uri='file:///usr/share/backgrounds/dogeos/wallpaper-4.jpg'
+picture-options='zoom'

@@ -1,4 +1,4 @@
-# Base recommends for Lotus OS with --apt-recommends false
+# Base recommends for DogeOS with --apt-recommends false
 # live-build applies that flag to ALL apt installs (not just GNOME).
 # Depends still install; Recommends do not — this file puts back packages that
 # would otherwise leave the live image / desktop / tools broken or half-working.

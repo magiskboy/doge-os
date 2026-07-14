@@ -1,5 +1,5 @@
 #!/bin/sh
-# Boot Lotus OS ISO in QEMU as a laptop-like guest (UEFI when OVMF is available).
+# Boot DogeOS ISO in QEMU as a laptop-like guest (UEFI when OVMF is available).
 #
 # Default hardware profile (q35):
 #   - Display 1920x1080 (virtio-vga + EDID)
@@ -9,11 +9,11 @@
 #   - ACPI power button (built into q35; battery/AC/lid need newer QEMU patches)
 #
 # Optional host USB passthrough (QEMU has no emulated Wi‑Fi/BT radios):
-#   LOTUS_USB_BT=1              auto-pass first USB Bluetooth adapter
-#   LOTUS_USB_BT=vvvv:pppp      pass specific Bluetooth device
-#   LOTUS_USB_WIFI=vvvv:pppp    pass USB Wi‑Fi adapter
+#   DOGE_USB_BT=1              auto-pass first USB Bluetooth adapter
+#   DOGE_USB_BT=vvvv:pppp      pass specific Bluetooth device
+#   DOGE_USB_WIFI=vvvv:pppp    pass USB Wi‑Fi adapter
 #
-# Other knobs: LOTUS_MEMORY, LOTUS_SMP, LOTUS_DISK_SIZE, LOTUS_VGA_GL=1
+# Other knobs: DOGE_MEMORY, DOGE_SMP, DOGE_DISK_SIZE, DOGE_VGA_GL=1
 set -e
 
 . "$(CDPATH= cd -- "$(dirname "$0")" && pwd)/lib.sh"
@@ -21,11 +21,11 @@ set -e
 ISO="$ISO_PATH"
 VM_DIR="$ROOT/output/vm"
 DISK="$VM_DIR/disk.qcow2"
-DISK_SIZE="${LOTUS_DISK_SIZE:-32G}"
-MEMORY="${LOTUS_MEMORY:-4096}"
-SMP="${LOTUS_SMP:-4}"
-SCREEN_W="${LOTUS_SCREEN_W:-1920}"
-SCREEN_H="${LOTUS_SCREEN_H:-1080}"
+DISK_SIZE="${DOGE_DISK_SIZE:-32G}"
+MEMORY="${DOGE_MEMORY:-4096}"
+SMP="${DOGE_SMP:-4}"
+SCREEN_W="${DOGE_SCREEN_W:-1920}"
+SCREEN_H="${DOGE_SCREEN_H:-1080}"
 
 if [ ! -f "$ISO" ]; then
 	echo "error: ISO not found at $ISO" >&2
@@ -123,7 +123,7 @@ AUDIO_DRIVER="$(pick_audio_driver || true)"
 EXTRA_USB=""
 
 # Bluetooth: host USB passthrough (emulation removed on modern x86 QEMU builds)
-case "${LOTUS_USB_BT:-}" in
+case "${DOGE_USB_BT:-}" in
 	""|0|false|no) ;;
 	1|true|yes)
 		bt_id="$(find_usb_bluetooth || true)"
@@ -131,34 +131,34 @@ case "${LOTUS_USB_BT:-}" in
 			EXTRA_USB="$EXTRA_USB $(usb_host_args "$bt_id")"
 			echo "USB Bluetooth passthrough: $bt_id"
 		else
-			echo "warning: LOTUS_USB_BT set but no USB Bluetooth device found" >&2
+			echo "warning: DOGE_USB_BT set but no USB Bluetooth device found" >&2
 		fi
 		;;
 	*:*)
-		EXTRA_USB="$EXTRA_USB $(usb_host_args "$LOTUS_USB_BT")"
-		echo "USB Bluetooth passthrough: $LOTUS_USB_BT"
+		EXTRA_USB="$EXTRA_USB $(usb_host_args "$DOGE_USB_BT")"
+		echo "USB Bluetooth passthrough: $DOGE_USB_BT"
 		;;
 	*)
-		echo "error: LOTUS_USB_BT must be 1 or vvvv:pppp" >&2
+		echo "error: DOGE_USB_BT must be 1 or vvvv:pppp" >&2
 		exit 1
 		;;
 esac
 
 # Wi‑Fi: no emulated 802.11 NIC in QEMU; USB Wi‑Fi dongle passthrough only
-case "${LOTUS_USB_WIFI:-}" in
+case "${DOGE_USB_WIFI:-}" in
 	""|0|false|no) ;;
 	*:*)
-		EXTRA_USB="$EXTRA_USB $(usb_host_args "$LOTUS_USB_WIFI")"
-		echo "USB Wi‑Fi passthrough: $LOTUS_USB_WIFI"
+		EXTRA_USB="$EXTRA_USB $(usb_host_args "$DOGE_USB_WIFI")"
+		echo "USB Wi‑Fi passthrough: $DOGE_USB_WIFI"
 		;;
 	*)
-		echo "error: LOTUS_USB_WIFI must be vvvv:pppp (QEMU cannot emulate Wi‑Fi)" >&2
+		echo "error: DOGE_USB_WIFI must be vvvv:pppp (QEMU cannot emulate Wi‑Fi)" >&2
 		exit 1
 		;;
 esac
 
 if [ "$USE_UEFI" -eq 1 ]; then
-	if [ "${LOTUS_VGA_GL:-0}" = "1" ] && qemu-system-x86_64 -device help 2>/dev/null | grep -q 'virtio-vga-gl'; then
+	if [ "${DOGE_VGA_GL:-0}" = "1" ] && qemu-system-x86_64 -device help 2>/dev/null | grep -q 'virtio-vga-gl'; then
 		VGA_DEVICE="virtio-vga-gl,xres=${SCREEN_W},yres=${SCREEN_H}"
 	else
 		VGA_DEVICE="virtio-vga,xres=${SCREEN_W},yres=${SCREEN_H}"
@@ -167,7 +167,7 @@ else
 	VGA_DEVICE="cirrus-vga"
 fi
 
-echo "Lotus OS (laptop profile)"
+echo "DogeOS (laptop profile)"
 echo "  ISO:     $ISO"
 echo "  Disk:    $DISK ($DISK_SIZE)"
 echo "  RAM:     ${MEMORY} MiB, CPUs: $SMP"
@@ -187,7 +187,7 @@ fi
 
 # shellcheck disable=SC2086
 set -- \
-	-name lotus-os \
+	-name dogeos \
 	-machine "$MACHINE" \
 	-cpu "$CPU" \
 	-m "$MEMORY" \

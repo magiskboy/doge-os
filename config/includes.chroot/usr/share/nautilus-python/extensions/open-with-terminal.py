@@ -40,7 +40,7 @@ class OpenWithTerminalExtension(GObject.GObject, Nautilus.MenuProvider):
             return []
 
         item = Nautilus.MenuItem(
-            name="LotusOS::open_with_terminal",
+            name="DogeOS::open_with_terminal",
             label="Open with Terminal",
         )
         item.connect("activate", self._activate, file)
@@ -54,7 +54,7 @@ class OpenWithTerminalExtension(GObject.GObject, Nautilus.MenuProvider):
             return []
 
         item = Nautilus.MenuItem(
-            name="LotusOS::open_with_terminal_bg",
+            name="DogeOS::open_with_terminal_bg",
             label="Open with Terminal",
         )
         item.connect("activate", self._activate, current_folder)

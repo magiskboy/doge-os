@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
-COPY entrypoint.sh /usr/local/bin/lotus-build-entrypoint.sh
-RUN chmod +x /usr/local/bin/lotus-build-entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/dogeos-build-entrypoint.sh
+RUN chmod +x /usr/local/bin/dogeos-build-entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/lotus-build-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/dogeos-build-entrypoint.sh"]

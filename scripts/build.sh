@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build Lotus OS ISO (native on Debian Trixie, otherwise container).
+# Build DogeOS ISO (native on Debian Trixie, otherwise container).
 # Keeps live-build cache between runs for faster rebuilds.
 set -e
 

@@ -1,12 +1,12 @@
 #!/bin/sh
-# Shared helpers for Lotus OS build scripts. Source from other scripts:
+# Shared helpers for DogeOS build scripts. Source from other scripts:
 #   . "$(dirname "$0")/lib.sh"
 
 ROOT="$(CDPATH= cd -- "$(dirname "$0")" && pwd)/.."
 ROOT="$(CDPATH= cd -- "$ROOT" && pwd)"
-ISO_NAME="lotus-os-trixie-amd64.hybrid.iso"
+ISO_NAME="dogeos-trixie-amd64.hybrid.iso"
 ISO_PATH="$ROOT/output/$ISO_NAME"
-IMAGE_NAME="lotus-os-builder:trixie"
+IMAGE_NAME="dogeos-builder:trixie"
 
 detect_runtime() {
 	if command -v podman >/dev/null 2>&1; then

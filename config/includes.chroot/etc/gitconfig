@@ -1,5 +1,5 @@
 # vim: ft=gitconfig
-# System-wide git defaults for Lotus OS.
+# System-wide git defaults for DogeOS.
 # User identity: set name/email/signingkey yourself (git config --global …).
 
 [color "branch"]

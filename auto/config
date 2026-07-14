@@ -22,7 +22,7 @@ lb config noauto \
 	--source false \
 	--apt-recommends false \
 	--debootstrap-options "--include=ca-certificates" \
-	--iso-application "Lotus OS" \
-	--iso-publisher "Lotus OS Project" \
-	--iso-volume "Lotus OS Trixie" \
+	--iso-application "DogeOS" \
+	--iso-publisher "DogeOS Project" \
+	--iso-volume "DogeOS Trixie" \
 	"${@}"

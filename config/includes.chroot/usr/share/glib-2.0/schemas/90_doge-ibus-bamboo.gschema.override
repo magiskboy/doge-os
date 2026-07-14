@@ -1,3 +1,3 @@
-# Lotus OS — Bamboo as default GNOME input method (ibus-bamboo).
+# DogeOS — Bamboo as default GNOME input method (ibus-bamboo).
 [org.gnome.desktop.input-sources]
 sources=[('xkb', 'us'), ('ibus', 'Bamboo')]

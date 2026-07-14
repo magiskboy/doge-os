@@ -11,6 +11,8 @@ source "$ZSH/oh-my-zsh.sh"
 
 export KIND_EXPERIMENTAL_PROVIDER="podman"
 
+alias kind="systemd-run --scope --user --p 'Delegate=true' kind"
+
 eval "$(fnm env --use-on-cd --shell zsh)"
 
 source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh

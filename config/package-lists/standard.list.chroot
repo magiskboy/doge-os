@@ -25,4 +25,5 @@ htop
 jq
 yq
 unzip
+imagemagick
 build-essential

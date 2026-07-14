@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=DogeOS
+Description=DogeOS boot splash
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/doge
+ScriptFile=/usr/share/plymouth/themes/doge/doge.script

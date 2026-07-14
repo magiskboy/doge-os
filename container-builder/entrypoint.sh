@@ -25,8 +25,8 @@ fi
 rm -f live-image-amd64.hybrid.iso
 
 # Rootless containers cannot mknod; fakeroot fakes device nodes for d-i initrd.
-if mknod /tmp/.lotus-mknod-test c 1 3 2>/dev/null; then
-	rm -f /tmp/.lotus-mknod-test
+if mknod /tmp/.dogeos-mknod-test c 1 3 2>/dev/null; then
+	rm -f /tmp/.dogeos-mknod-test
 	lb build
 else
 	echo "note: mknod unavailable; running lb build under fakeroot" >&2
@@ -34,7 +34,7 @@ else
 fi
 
 ISO_SRC="live-image-amd64.hybrid.iso"
-ISO_DST="output/lotus-os-trixie-amd64.hybrid.iso"
+ISO_DST="output/dogeos-trixie-amd64.hybrid.iso"
 
 if [ ! -f "$ISO_SRC" ]; then
 	echo "error: expected ISO not found at $ISO_SRC" >&2
