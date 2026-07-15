@@ -1,0 +1,41 @@
+#!/bin/sh
+# Install ScreenToSpace GNOME Shell extension from GitHub release.
+set -e
+
+SCREENTOSPACE_VER=V15
+UUID=screentospace@dilzhan.dev
+EXT_DIR=/usr/share/gnome-shell/extensions/${UUID}
+SCHEMA_DIR=/usr/share/glib-2.0/schemas
+
+TMP=$(mktemp -d)
+cleanup() { rm -rf "$TMP"; }
+trap cleanup EXIT
+
+curl -fsSL -o "${TMP}/screentospace.zip" \
+	"https://github.com/DilZhaan/ScreenToSpace/releases/download/${SCREENTOSPACE_VER}/screentospace%40dilzhan.dev.zip"
+
+install -d "$EXT_DIR"
+unzip -q "${TMP}/screentospace.zip" -d "$EXT_DIR"
+
+# Upstream targets GNOME 49+; declare compatibility with the installed Shell major.
+if command -v gnome-shell >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+	SHELL_MAJOR=$(gnome-shell --version | sed -n 's/.* \([0-9]*\)\..*/\1/p')
+	if [ -n "$SHELL_MAJOR" ] && [ -f "${EXT_DIR}/metadata.json" ]; then
+		if ! jq -e --arg v "$SHELL_MAJOR" '.["shell-version"] | index($v) != null' \
+			"${EXT_DIR}/metadata.json" >/dev/null 2>&1; then
+			jq --arg v "$SHELL_MAJOR" \
+				'.["shell-version"] += [$v] | .["shell-version"] |= unique' \
+				"${EXT_DIR}/metadata.json" > "${EXT_DIR}/metadata.json.tmp"
+			mv "${EXT_DIR}/metadata.json.tmp" "${EXT_DIR}/metadata.json"
+		fi
+	fi
+fi
+
+if [ -f "${EXT_DIR}/schemas/org.gnome.shell.extensions.screentospace.gschema.xml" ]; then
+	install -m 644 "${EXT_DIR}/schemas/org.gnome.shell.extensions.screentospace.gschema.xml" \
+		"${SCHEMA_DIR}/"
+fi
+
+if command -v glib-compile-schemas >/dev/null 2>&1; then
+	glib-compile-schemas "$SCHEMA_DIR"
+fi
