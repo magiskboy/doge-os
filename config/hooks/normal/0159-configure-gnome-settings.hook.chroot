@@ -1,14 +1,20 @@
 #!/bin/sh
-# Compile DogeOS gsettings schema overrides and set Dash / Dash-to-Dock defaults.
+# Compile DogeOS gsettings schema overrides (favorites, enabled extensions, background).
 set -e
 
 SCHEMA_DIR=/usr/share/glib-2.0/schemas
 
 # Favorites order (left → right / top → bottom):
-# Files, Chrome, VS Code, DBeaver, Terminal (Ptyxis), Settings
-cat > "$SCHEMA_DIR/90_doge-favorite-apps.gschema.override" <<'EOF'
+# Files, Chrome, VS Code, DBeaver, Terminal (Ptyxis), Software, Settings
+# Enable curated GNOME Shell extensions by default for new users.
+# Dash to Dock: icon size 32 (schema key dash-max-icon-size, range 16..64).
+cat > "$SCHEMA_DIR/90_doge-shell.gschema.override" <<'EOF'
 [org.gnome.shell]
-favorite-apps=['org.gnome.Nautilus.desktop', 'google-chrome.desktop', 'code.desktop', 'dbeaver-ce.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Settings.desktop']
+favorite-apps=['org.gnome.Nautilus.desktop', 'google-chrome.desktop', 'code.desktop', 'dbeaver-ce.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Software.desktop', 'org.gnome.Settings.desktop']
+enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'apps-menu@gnome-shell-extensions.gcampax.github.com', 'caffeine@patapon.info', 'places-menu@gnome-shell-extensions.gcampax.github.com', 'ubuntu-appindicators@ubuntu.com', 'tiling-assistant@leleat-on-github']
+
+[org.gnome.shell.extensions.dash-to-dock]
+dash-max-icon-size=32
 EOF
 
 # Ensure background override exists even if generate-branding-assets.sh was not run.

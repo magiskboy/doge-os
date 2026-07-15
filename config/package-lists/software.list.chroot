@@ -1,0 +1,8 @@
+# GNOME Software + Flatpak / Flathub (plan A)
+# Flathub remote: config/includes.chroot/etc/flatpak/remotes.d/flathub.flatpakrepo
+# (--apt-recommends false: list plugins + PackageKit explicitly)
+
+flatpak
+gnome-software
+gnome-software-plugin-flatpak
+packagekit

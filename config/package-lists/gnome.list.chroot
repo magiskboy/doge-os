@@ -41,9 +41,12 @@ baobab
 file-roller
 firefox-esr
 gnome-tweaks
+gnome-browser-connector
 gnome-shell-extension-dashtodock
 gnome-shell-extension-appindicator
+gnome-shell-extension-apps-menu
 gnome-shell-extension-caffeine
+gnome-shell-extension-places-menu
 gnome-shell-extension-tiling-assistant
 gnome-calculator
 vlc
@@ -53,6 +56,8 @@ system-config-printer-common
 libxkbfile1
 libnss3
 xdg-utils
+wl-clipboard
+xclip
 # Pulled by google-chrome-stable; keep explicit so recommends=false builds stay complete.
 fonts-liberation
 
@@ -63,11 +68,13 @@ gstreamer1.0-libav
 # --- Cố ý không cài (giữ ở đây để nhớ khi chỉnh list) ---
 # gnome-maps gnome-weather gnome-calendar gnome-clocks gnome-contacts
 # gnome-connections gnome-snapshot orca yelp gnome-user-docs gnome-tour
-# gnome-software simple-scan totem showtime
+# simple-scan totem showtime
 # gnome-remote-desktop rygel-playbin seahorse evolution libreoffice-*
 # gnome-terminal
 #
+# gnome-software + flatpak: xem package-lists/software.list.chroot
+# và includes.chroot/etc/flatpak/remotes.d/flathub.flatpakrepo
+#
 # Cân nhắc thêm sau nếu cần:
-# - gnome-software: GUI store (dev OS thường dùng apt/flatpak)
 # - gnome-remote-desktop: chia sẻ màn hình / RDP
 # - seahorse: GUI GPG / keyring

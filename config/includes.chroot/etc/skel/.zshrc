@@ -5,6 +5,16 @@ ZSH_THEME="robbyrussell"
 plugins=(
     git
     kubectl
+    podman
+    fzf
+    fnm
+    uv
+    rust
+    golang
+    sudo
+    extract
+    safe-paste
+    z
 )
 
 source "$ZSH/oh-my-zsh.sh"
